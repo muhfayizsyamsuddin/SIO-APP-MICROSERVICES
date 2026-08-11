@@ -1,0 +1,23 @@
+services:
+  user-db:
+    image: postgres:16-alpine
+    container_name: sio-user-db
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: sio-app-ms-db
+      POSTGRES_USER: sio-app-ms-user
+      POSTGRES_PASSWORD: sio-app-ms-password222
+    volumes:
+      - sio-user-db-data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer:latest
+    container_name: sio-user-adminer
+    ports:
+      - "8081:8080"
+    depends_on:
+      - user-db
+
+volumes:
+  sio-user-db-data:
