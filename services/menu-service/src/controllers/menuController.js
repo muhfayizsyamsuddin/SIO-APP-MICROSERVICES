@@ -30,6 +30,28 @@ class MenuController {
       });
     }
   }
+
+  static async getMenuById(req, res) {
+    try {
+        const { id } = req.params;
+
+        const menu = await Menu.findByPk(id);
+
+        if (!menu) {
+            return res.status(404).json({
+                message: 'Menu tidak ditemukan'
+            });
+        }
+
+        res.json(menu);
+    } catch (error) {
+        console.log(error, '<== error get menu by id');
+
+        res.status(500).json({
+            message: 'Internal server error'
+        });
+    }
+    }
 }
 
 module.exports = MenuController;
