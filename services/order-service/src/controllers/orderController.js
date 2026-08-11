@@ -273,6 +273,27 @@ class OrderController {
       }
     }
   }
+
+  static async getAdminOrders(req, res) {
+    try {
+      const orders = await Order.findAll({
+        include: [
+          {
+            model: OrderMenu
+          }
+        ],
+        order: [['createdAt', 'DESC']]
+      });
+
+      res.json(orders);
+    } catch (error) {
+      console.error(error);
+
+      res.status(500).json({
+        message: 'Failed to get admin orders'
+      });
+    }
+  }
 }
 
 module.exports = OrderController;
