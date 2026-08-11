@@ -1,0 +1,39 @@
+services:
+  menu-service:
+    build: .
+    container_name: sio-menu-service
+    ports:
+      - "3002:3002"
+    env_file:
+      - .env
+    depends_on:
+      menu-db:
+        condition: service_healthy
+
+  menu-db:
+    image: postgres:16-alpine
+    container_name: sio-menu-db
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_DB: sio-menu-db
+      POSTGRES_USER: sio-menu-user
+      POSTGRES_PASSWORD: sio-menu-password222
+    volumes:
+      - sio-menu-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sio-menu-user -d sio-menu-db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  adminer:
+    image: adminer:latest
+    container_name: sio-menu-adminer
+    ports:
+      - "8082:8080"
+    depends_on:
+      - menu-db
+
+volumes:
+  sio-menu-db-data:
