@@ -2,14 +2,32 @@ services:
   user-db:
     image: postgres:16-alpine
     container_name: sio-user-db
-    ports:
-      - "5433:5432"
     environment:
       POSTGRES_DB: sio-app-ms-db
       POSTGRES_USER: sio-app-ms-user
       POSTGRES_PASSWORD: sio-app-ms-password222
     volumes:
       - sio-user-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sio-app-ms-user -d sio-app-ms-db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - sio-net
+
+  user-service:
+    build: .
+    container_name: sio-user-service
+    ports:
+      - "3001:3001"
+    env_file:
+      - .env
+    networks:
+      - sio-net
+    depends_on:
+      user-db:
+        condition: service_healthy
 
   adminer:
     image: adminer:latest
@@ -18,6 +36,12 @@ services:
       - "8081:8080"
     depends_on:
       - user-db
+    networks:
+      - sio-net
 
 volumes:
   sio-user-db-data:
+
+networks:
+  sio-net:
+    external: true
