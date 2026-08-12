@@ -5,10 +5,23 @@ const { Order, OrderMenu } = require('../models');
 const MENU_SERVICE_URL =
   process.env.MENU_SERVICE_URL || 'http://localhost:3002';
 
+async function getOwnedOrder(orderId, userId) {
+  return Order.findOne({
+    where: {
+      id: orderId,
+      UserId: userId
+    },
+    include: [OrderMenu]
+  });
+}
+
 class OrderController {
   static async getOrders(req, res) {
     try {
       const orders = await Order.findAll({
+        where: {
+          UserId: req.user.id
+        },
         include: [
           {
             model: OrderMenu
@@ -32,13 +45,7 @@ class OrderController {
       const { menuId } = req.params;
 
       // sementara untuk testing microservice
-      const UserId = Number(req.body.UserId);
-
-      if (!UserId) {
-        return res.status(400).json({
-          message: 'UserId wajib diisi'
-        });
-      }
+      const UserId = req.user.id;
 
       // Ambil menu dari Menu Service
       const response = await fetch(
@@ -90,11 +97,19 @@ class OrderController {
         });
       }
 
-      const orderMenu = await OrderMenu.findByPk(menuId);
+      const orderMenu = await OrderMenu.findByPk(menuId, {
+        include: [Order]
+      });
 
       if (!orderMenu) {
         return res.status(404).json({
           message: 'Item order tidak ditemukan'
+        });
+      }
+
+      if (orderMenu.Order.UserId !== req.user.id) {
+        return res.status(403).json({
+          message: 'Forbidden'
         });
       }
 
@@ -119,11 +134,18 @@ class OrderController {
     try {
       const { menuId } = req.params;
 
-      const orderMenu = await OrderMenu.findByPk(menuId);
+      const orderMenu = await OrderMenu.findByPk(menuId, {
+        include: [Order]
+      });
 
       if (!orderMenu) {
         return res.status(404).json({
           message: 'Item order tidak ditemukan'
+        });
+      }
+      if (orderMenu.Order.UserId !== req.user.id) {
+        return res.status(403).json({
+          message: 'Forbidden'
         });
       }
 
@@ -161,9 +183,10 @@ class OrderController {
     try {
       const { orderId } = req.params;
 
-      const order = await Order.findByPk(orderId, {
-        include: [OrderMenu]
-      });
+      const order = await getOwnedOrder(
+        orderId,
+        req.user.id
+      );
 
       if (!order) {
         return res.status(404).json({
@@ -198,9 +221,10 @@ class OrderController {
     try {
       const { orderId } = req.params;
 
-      const order = await Order.findByPk(orderId, {
-        include: [OrderMenu]
-      });
+      const order = await getOwnedOrder(
+        orderId,
+        req.user.id
+      );
 
       if (!order) {
         return res.status(404).json({

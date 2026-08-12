@@ -6,11 +6,11 @@ const router = express.Router();
 
 router.get('/admin', authenticate, isAdmin, OrderController.getAdminOrders);
 
-router.get('/', OrderController.getOrders);
-router.post('/:menuId', OrderController.postOrder);
-router.post('/:menuId/edit', OrderController.handlerEdit);
-router.post('/:menuId/delete', OrderController.handlerDelete);
-router.post('/:orderId/pay', OrderController.payOrder);
-router.get('/:orderId/pdf', OrderController.downloadPdf);
+router.get('/', authenticate, OrderController.getOrders);
+router.post('/:menuId', authenticate, OrderController.postOrder);
+router.post('/:menuId/edit', authenticate, OrderController.handlerEdit);
+router.post('/:menuId/delete', authenticate, OrderController.handlerDelete);
+router.post('/:orderId/pay', authenticate, OrderController.payOrder);
+router.get('/:orderId/pdf', authenticate, OrderController.downloadPdf);
 
 module.exports = router;
