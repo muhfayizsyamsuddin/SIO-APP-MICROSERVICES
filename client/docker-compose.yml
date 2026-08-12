@@ -1,0 +1,12 @@
+services:
+  client:
+    build: .
+    container_name: sio-app-client
+    ports:
+      - "5173:80"
+    networks:
+      - sio-net
+
+networks:
+  sio-net:
+    external: true
