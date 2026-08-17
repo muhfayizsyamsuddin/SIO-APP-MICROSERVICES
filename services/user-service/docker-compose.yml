@@ -19,8 +19,8 @@ services:
   user-service:
     build: .
     container_name: sio-user-service
-    ports:
-      - "3001:3001"
+    # ports:
+    #   - "3001:3001"
     env_file:
       - .env
     networks:
@@ -28,6 +28,13 @@ services:
     depends_on:
       user-db:
         condition: service_healthy
+    labels:
+      traefik.enable: true
+      traefik.docker.network: sio-net
+      traefik.http.routers.sio-user.rule: PathPrefix(`/auth`) || PathPrefix(`/users`)
+      traefik.http.routers.sio-user.entrypoints: web
+      traefik.http.routers.sio-user.middlewares: cors@file
+      traefik.http.services.sio-user.loadbalancer.server.port: 3001
 
   adminer:
     image: adminer:latest

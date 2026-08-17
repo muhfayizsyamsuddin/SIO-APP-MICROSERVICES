@@ -73,7 +73,7 @@ function OrdersPage() {
           const token = localStorage.getItem('access_token');
           
           const response = await fetch(
-              `http://localhost:3000/orders/${orderId}/pdf`,
+              `http://localhost:8088/orders/${orderId}/pdf`,
         {
             headers: {
                 Authorization: `Bearer ${token}`,

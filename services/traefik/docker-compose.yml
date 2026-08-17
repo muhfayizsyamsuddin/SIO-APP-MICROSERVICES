@@ -1,0 +1,41 @@
+services:
+  traefik:
+    image: traefik:3
+    container_name: sio-traefik
+
+    ports:
+      - "8088:80"
+      - "8443:443"
+      - "8090:8080"
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config.yml:/etc/traefik/dynamic_conf.yml:ro
+
+    command:
+      - "--log.level=INFO"
+
+      # Dashboard
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+
+      # Docker provider
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+
+      # File provider
+      - "--providers.file.filename=/etc/traefik/dynamic_conf.yml"
+      - "--providers.file.watch=true"
+
+      # HTTP / HTTPS
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+
+    restart: unless-stopped
+
+    networks:
+      - sio-net
+
+networks:
+  sio-net:
+    external: true

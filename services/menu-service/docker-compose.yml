@@ -2,8 +2,8 @@ services:
   menu-service:
     build: .
     container_name: sio-menu-service
-    ports:
-      - "3002:3002"
+    # ports:
+    #   - "3002:3002"
     env_file:
       - .env
     networks:
@@ -11,6 +11,13 @@ services:
     depends_on:
       menu-db:
         condition: service_healthy
+    labels:
+       traefik.enable: true
+       traefik.docker.network: sio-net
+       traefik.http.routers.sio-menu.rule: PathPrefix(`/menus`)
+       traefik.http.routers.sio-menu.entrypoints: web
+       traefik.http.routers.sio-menu.middlewares: cors@file
+       traefik.http.services.sio-menu.loadbalancer.server.port: 3002
 
   menu-db:
     image: postgres:16-alpine

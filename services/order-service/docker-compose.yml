@@ -19,8 +19,8 @@ services:
   order-service:
     build: .
     container_name: sio-order-service
-    ports:
-      - "3003:3003"
+    # ports:
+    #   - "3003:3003"
     env_file:
       - .env
     networks:
@@ -28,6 +28,13 @@ services:
     depends_on:
       order-db:
         condition: service_healthy
+    labels:
+      traefik.enable: true
+      traefik.docker.network: sio-net
+      traefik.http.routers.sio-order.rule: PathPrefix(`/orders`)
+      traefik.http.routers.sio-order.entrypoints: web
+      traefik.http.routers.sio-order.middlewares: cors@file
+      traefik.http.services.sio-order.loadbalancer.server.port: 3003
 
   adminer:
     image: adminer:latest
