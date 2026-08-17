@@ -165,10 +165,36 @@ async function getAdminUsers(req, res) {
   }
 }
 
+async function getUserEmailInternal(req, res) {
+  try {
+    const user = await User.findByPk(req.params.id, {
+      attributes: ['id', 'email']
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found'
+      });
+    }
+
+    res.json({
+      id: user.id,
+      email: user.email
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: 'Internal server error'
+    });
+  }
+}
+
 module.exports = {
   getUsers,
   createUser,
   getUserById,
   getMyProfile,
-  getAdminUsers
+  getAdminUsers,
+  getUserEmailInternal
 };

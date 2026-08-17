@@ -1,0 +1,13 @@
+services:
+  subscribe-service:
+    build: .
+    container_name: sio-subscribe-service
+    env_file:
+      - .env
+    networks:
+      - sio-net
+    restart: unless-stopped
+
+networks:
+  sio-net:
+    external: true

@@ -1,6 +1,7 @@
 const PDFDocument = require('pdfkit');
 const path = require('path');
 const { Order, OrderMenu } = require('../models');
+const { publishEvent } = require('../config/rabbitmq');
 
 const MENU_SERVICE_URL =
   process.env.MENU_SERVICE_URL || 'http://localhost:3002';
@@ -74,6 +75,17 @@ class OrderController {
 
       const result = await Order.findByPk(order.id, {
         include: [OrderMenu]
+      });
+
+      await publishEvent('order.created', {
+        orderId: result.id,
+        userId: result.UserId,
+        statusOrder: result.statusOrder,
+        items: result.OrderMenus.map((item) => ({
+          menuId: item.MenuId,
+          quantity: item.quantity,
+          priceAtOrder: item.priceAtOrder
+        }))
       });
 
       res.status(201).json(result);

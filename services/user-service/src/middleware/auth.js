@@ -37,7 +37,23 @@ function isAdmin(req, res, next) {
   next();
 }
 
+function authenticateInternal(req, res, next) {
+  const internalKey = req.headers['x-internal-key'];
+
+  if (
+    !internalKey ||
+    internalKey !== process.env.INTERNAL_SERVICE_KEY
+  ) {
+    return res.status(401).json({
+      message: 'Internal authentication required'
+    });
+  }
+
+  next();
+}
+
 module.exports = {
   authenticate,
-  isAdmin
+  authenticateInternal,
+  isAdmin,
 };

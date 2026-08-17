@@ -1,0 +1,23 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: sio-rabbitmq
+
+    environment:
+      RABBITMQ_ERLANG_COOKIE: SIOAPPSECRETCOOKIE
+      RABBITMQ_DEFAULT_USER: root
+      RABBITMQ_DEFAULT_PASS: root
+      RABBITMQ_DEFAULT_VHOST: "/"
+
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+    networks:
+      - sio-net
+
+    restart: unless-stopped
+
+networks:
+  sio-net:
+    external: true
